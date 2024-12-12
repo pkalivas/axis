@@ -1,0 +1,4 @@
+[workspace]
+members = [
+    "axis", "axis-examples/dummy", "axis-examples/simple",
+]
