@@ -1,0 +1,6 @@
+target/
+.exe
+.pdb
+Cargo.lock
+axis/.vs
+.idea/
