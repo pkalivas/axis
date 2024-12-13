@@ -2,15 +2,16 @@ use axis::*;
 
 fn main() {
     let mut frame = DataFrame::new();
-    let column = Series::new("column1");
-    frame.add_series(column);
-    assert_eq!(frame["column1"].len(), 0);
 
-    let mut frame = DataFrame::new();
-    let column = Series::new("add");
-    frame.add_series(column);
-    assert_eq!(frame.columns.len(), 1);
+    frame.set("A", vec![1, 2, 3, 4, 5]);
+    frame.set("B", vec!["a", "b", "c", "d", "e"]);
+    frame.set("C", vec![1.1, 2.2, 3.3, 4.4, 5.5]);
+    frame.set("D", vec![true, false, true, false, true]);
 
-    let frame = DataFrame::new();
-    assert_eq!(frame.columns.len(), 0);
+    for series in frame.iter() {
+        println!("Column: {}", series.name);
+        for value in series.iter() {
+            println!("{:?}", value);
+        }
+    }
 }
