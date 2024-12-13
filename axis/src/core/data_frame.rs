@@ -28,8 +28,7 @@ impl DataFrame {
     }
 
     pub fn set<T: Into<Series>>(&mut self, name: &'static str, series: T) {
-        let mut new_series = series.into();
-        new_series.name = name;
+        let new_series = series.into().rename(name);
 
         if !self.series.contains_key(name) {
             self.column_order.push(name);
