@@ -13,8 +13,35 @@ impl DataFrame {
         }
     }
 
-    pub fn add_series(&mut self, series: Series) {
-        self.columns.push(series);
+    pub fn push<T: Into<Series>>(&mut self, series: T) {
+        self.columns.push(series.into());
+    }
+
+    pub fn set<T: Into<Series>>(&mut self, name: &'static str, series: T) {
+        let mut new_series = series.into();
+        new_series.name = name;
+
+        if let Some(column) = self.columns.iter_mut().find(|column| column.name == name) {
+            *column = new_series;
+        } else {
+            self.push(new_series);
+        }
+    }
+
+    pub fn len(&self) -> usize {
+        self.columns.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.columns.is_empty()
+    }
+
+    pub fn iter(&self) -> std::slice::Iter<Series> {
+        self.columns.iter()
+    }
+
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<Series> {
+        self.columns.iter_mut()
     }
 }
 
@@ -60,7 +87,7 @@ mod tests {
     fn test_add_column() {
         let mut frame = DataFrame::new();
         let column = Series::new("add");
-        frame.add_series(column);
+        frame.push(column);
         assert_eq!(frame.columns.len(), 1);
     }
 
@@ -68,7 +95,7 @@ mod tests {
     fn test_index() {
         let mut frame = DataFrame::new();
         let column = Series::new("column1");
-        frame.add_series(column);
+        frame.push(column);
         assert_eq!(frame["column1"].len(), 0);
     }
 
@@ -76,7 +103,7 @@ mod tests {
     fn test_index_mut() {
         let mut frame = DataFrame::new();
         let column = Series::new("column1");
-        frame.add_series(column);
+        frame.push(column);
         frame["column1"].push(42);
         assert_eq!(frame["column1"].len(), 1);
     }
