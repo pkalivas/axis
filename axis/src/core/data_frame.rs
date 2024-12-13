@@ -56,20 +56,16 @@ impl Index<&'static str> for DataFrame {
         self.columns
             .iter()
             .find(|column| column.name == name)
-            .unwrap()
+            .expect("Column not found")
     }
 }
 
 impl IndexMut<&'static str> for DataFrame {
     fn index_mut(&mut self, name: &'static str) -> &mut Self::Output {
-        if !self.columns.iter().any(|column| column.name == name) {
-            panic!("Column not found: {}", name);
-        }
-
         self.columns
             .iter_mut()
             .find(|column| column.name == name)
-            .unwrap()
+            .expect("Column not found")
     }
 }
 

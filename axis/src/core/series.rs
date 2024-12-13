@@ -15,10 +15,7 @@ impl Series {
         }
     }
 
-    pub fn push<T>(&mut self, value: T)
-    where
-        T: Into<Scaler>,
-    {
+    pub fn push<T: Into<Scaler>>(&mut self, value: T) {
         let new_value = value.into();
 
         if self.values.is_empty() {
