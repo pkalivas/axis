@@ -28,6 +28,11 @@ impl Series {
         }
     }
 
+    pub fn rename(mut self, name: &'static str) -> Self {
+        self.name = name;
+        self
+    }
+
     pub fn is_empty(&self) -> bool {
         self.values.is_empty()
     }
