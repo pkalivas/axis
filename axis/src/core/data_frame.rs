@@ -5,6 +5,9 @@ use std::{
 
 use crate::core::series::Series;
 
+use super::FrameIterator;
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct DataFrame {
     pub series: BTreeMap<&'static str, Series>,
     column_order: Vec<&'static str>,
@@ -41,6 +44,10 @@ impl DataFrame {
 
     pub fn is_empty(&self) -> bool {
         self.series.is_empty()
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &Series> {
+        FrameIterator::new(&self.series, &self.column_order)
     }
 }
 

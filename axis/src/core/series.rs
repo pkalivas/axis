@@ -2,6 +2,7 @@ use std::ops::{Index, IndexMut};
 
 use super::Scaler;
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct Series {
     pub name: &'static str,
     pub values: Vec<Scaler>,
