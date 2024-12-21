@@ -9,7 +9,7 @@ use super::FrameIterator;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct DataFrame {
-    pub series: BTreeMap<&'static str, Series>,
+    series: BTreeMap<&'static str, Series>,
     column_order: Vec<&'static str>,
 }
 
