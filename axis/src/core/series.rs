@@ -1,10 +1,11 @@
 use std::ops::{Index, IndexMut};
 
-use super::Scaler;
+use super::{DataType, Scaler};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Series {
     pub name: &'static str,
+    pub data_type: DataType,
     pub values: Vec<Scaler>,
 }
 
@@ -12,6 +13,7 @@ impl Series {
     pub fn new(name: &'static str) -> Self {
         Series {
             name,
+            data_type: DataType::None,
             values: Vec::new(),
         }
     }
@@ -20,11 +22,16 @@ impl Series {
         let new_value = value.into();
 
         if self.values.is_empty() {
+            self.data_type = new_value.data_type();
             self.values.push(new_value);
-        } else if std::mem::discriminant(&self.values[0]) == std::mem::discriminant(&new_value) {
+        } else if new_value.data_type() == self.data_type {
             self.values.push(new_value);
         } else {
-            panic!("Invalid value pushed to column: {}", self.name);
+            panic!(
+                "Invalid data type ({:?}) pushed to column ({:?})",
+                new_value.data_type(),
+                self.data_type
+            );
         }
     }
 

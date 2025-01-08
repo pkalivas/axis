@@ -1,4 +1,23 @@
 #[derive(Debug, Clone, PartialEq)]
+pub enum DataType {
+    None,
+    I8,
+    I16,
+    I32,
+    I64,
+    U8,
+    U16,
+    U32,
+    U64,
+    F32,
+    F64,
+    Bool,
+    Char,
+    String,
+    Bytes,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum Scaler {
     Empty,
     I8(i8),
@@ -15,7 +34,6 @@ pub enum Scaler {
     Char(char),
     String(String),
     Bytes(Vec<u8>),
-    List(Vec<Scaler>),
 }
 
 impl Scaler {
@@ -39,6 +57,26 @@ impl Scaler {
             | Scaler::F32(_)
             | Scaler::F64(_) => true,
             _ => false,
+        }
+    }
+
+    pub fn data_type(&self) -> DataType {
+        match self {
+            Scaler::I8(_) => DataType::I8,
+            Scaler::I16(_) => DataType::I16,
+            Scaler::I32(_) => DataType::I32,
+            Scaler::I64(_) => DataType::I64,
+            Scaler::U8(_) => DataType::U8,
+            Scaler::U16(_) => DataType::U16,
+            Scaler::U32(_) => DataType::U32,
+            Scaler::U64(_) => DataType::U64,
+            Scaler::F32(_) => DataType::F32,
+            Scaler::F64(_) => DataType::F64,
+            Scaler::Bool(_) => DataType::Bool,
+            Scaler::Char(_) => DataType::Char,
+            Scaler::String(_) => DataType::String,
+            Scaler::Bytes(_) => DataType::Bytes,
+            _ => panic!("Invalid data type"),
         }
     }
 }
@@ -130,12 +168,6 @@ impl From<String> for Scaler {
 impl From<Vec<u8>> for Scaler {
     fn from(value: Vec<u8>) -> Self {
         Scaler::Bytes(value)
-    }
-}
-
-impl From<Vec<Scaler>> for Scaler {
-    fn from(value: Vec<Scaler>) -> Self {
-        Scaler::List(value)
     }
 }
 
