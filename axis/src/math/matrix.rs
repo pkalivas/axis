@@ -1,5 +1,10 @@
 use std::ops::{Index, IndexMut};
 
+use rand::{distributions::Standard, prelude::Distribution};
+
+use crate::domain::random_provider;
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct Matrix<T> {
     data: Vec<T>,
     shape: (usize, usize),
@@ -20,6 +25,18 @@ impl<T> Matrix<T> {
         if data.len() != shape.0 * shape.1 {
             panic!("Data length does not match shape");
         }
+
+        Matrix { data, shape }
+    }
+
+    pub fn random(shape: (usize, usize)) -> Self
+    where
+        T: rand::distributions::uniform::SampleUniform,
+        Standard: Distribution<T>,
+    {
+        let data = (0..shape.0 * shape.1)
+            .map(|_| random_provider::random::<T>())
+            .collect::<Vec<T>>();
 
         Matrix { data, shape }
     }
@@ -64,6 +81,18 @@ impl<T> IndexMut<(usize, usize)> for Matrix<T> {
         }
 
         &mut self.data[index.0 * self.shape.1 + index.1]
+    }
+}
+
+impl<T> From<Vec<Vec<T>>> for Matrix<T>
+where
+    T: Clone,
+{
+    fn from(data: Vec<Vec<T>>) -> Self {
+        let shape = (data.len(), data[0].len());
+        let data = data.into_iter().flatten().collect();
+
+        Matrix { data, shape }
     }
 }
 

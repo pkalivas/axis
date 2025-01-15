@@ -1,5 +1,7 @@
 pub mod core;
-pub mod mat;
+pub mod domain;
+pub mod math;
+pub mod mlp;
 
 pub use core::*;
-pub use mat::Matrix;
+pub use math::Matrix;
