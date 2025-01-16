@@ -16,11 +16,11 @@ pub struct Dense {
 
 impl Dense {
     pub fn new(shape: (usize, usize), activation: Activation) -> Self {
-        let weights = Matrix::random(shape);
-        let biases = Matrix::random((1, shape.1));
+        let weights = Matrix::random(shape, -1.0..1.0);
+        let biases = Matrix::random((1, shape.1), -1.0..1.0);
 
-        let weight_gradient = Matrix::from_shape(shape);
-        let bias_gradient = Matrix::from_shape((1, shape.1));
+        let weight_gradient = Matrix::new(shape);
+        let bias_gradient = Matrix::new((1, shape.1));
 
         Dense {
             shape,
@@ -43,7 +43,7 @@ impl Dense {
     }
 
     pub fn predict(&mut self, input: Matrix<f32>) -> Matrix<f32> {
-        let mut output = Matrix::from_shape((input.shape().0, self.shape.1));
+        let mut output = Matrix::new((input.shape().0, self.shape.1));
         for i in 0..input.shape().0 {
             for j in 0..self.shape.1 {
                 let mut sum = self.biases[(0, j)];
