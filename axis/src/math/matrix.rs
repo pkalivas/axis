@@ -72,7 +72,7 @@ impl<T> Matrix<T> {
         Matrix { data, shape }
     }
 
-    pub fn reshape(&self, shape: (usize, usize)) -> Self
+    pub fn reshape(self, shape: (usize, usize)) -> Self
     where
         T: Default + Clone,
     {
@@ -81,9 +81,45 @@ impl<T> Matrix<T> {
         }
 
         Matrix {
-            data: self.data.clone(),
+            data: self.data,
             shape,
         }
+    }
+
+    pub fn transpose(&self) -> Self
+    where
+        T: Default + Clone,
+    {
+        let mut data = Vec::with_capacity(self.data.len());
+        for j in 0..self.shape.1 {
+            for i in 0..self.shape.0 {
+                data.push(self[(i, j)].clone());
+            }
+        }
+
+        Matrix {
+            data,
+            shape: (self.shape.1, self.shape.0),
+        }
+    }
+
+    pub fn flatten(self) -> Self
+    where
+        T: Default + Clone,
+    {
+        let len = self.data.len();
+        Matrix {
+            data: self.data,
+            shape: (1, len),
+        }
+    }
+
+    pub fn rows(&self) -> usize {
+        self.shape.0
+    }
+
+    pub fn cols(&self) -> usize {
+        self.shape.1
     }
 
     pub fn shape(&self) -> (usize, usize) {
@@ -522,5 +558,19 @@ mod test {
         assert_eq!(result[(0, 1)], 22);
         assert_eq!(result[(1, 0)], 43);
         assert_eq!(result[(1, 1)], 50);
+    }
+
+    #[test]
+    fn test_matrix_transpose() {
+        let matrix = Matrix::arange(1, 7, 1).reshape((2, 3));
+        let result = matrix.transpose();
+
+        assert_eq!(result.shape(), (3, 2));
+        assert_eq!(result[(0, 0)], 1);
+        assert_eq!(result[(0, 1)], 4);
+        assert_eq!(result[(1, 0)], 2);
+        assert_eq!(result[(1, 1)], 5);
+        assert_eq!(result[(2, 0)], 3);
+        assert_eq!(result[(2, 1)], 6);
     }
 }

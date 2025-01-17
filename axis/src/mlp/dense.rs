@@ -42,12 +42,33 @@ impl Dense {
         output
     }
 
+    pub fn backpropagate(&mut self, error: Matrix<f32>) -> Matrix<f32> {
+        let prev_output = self.outputs.pop_back().unwrap();
+        let prev_input = self.inputs.pop_back().unwrap();
+
+        let mut output = Matrix::new((prev_input.shape().0, self.shape.1));
+
+        for i in 0..prev_input.rows() {
+            for j in 0..self.shape.1 {
+                let activation_derivative = self.activation.deactivate(prev_output[(i, j)]);
+                let delta = error[(i, j)] * activation_derivative;
+
+                self.bias_gradient[(0, j)] += delta;
+                self.weight_gradient[(0, j)] += prev_input[(i, 0)] * delta;
+
+                output[(i, j)] = delta;
+            }
+        }
+
+        output
+    }
+
     pub fn predict(&mut self, input: Matrix<f32>) -> Matrix<f32> {
         let mut output = Matrix::new((input.shape().0, self.shape.1));
-        for i in 0..input.shape().0 {
+        for i in 0..input.rows() {
             for j in 0..self.shape.1 {
                 let mut sum = self.biases[(0, j)];
-                for k in 0..input.shape().1 {
+                for k in 0..input.cols() {
                     sum += input[(i, k)] * self.weights[(k, j)];
                 }
 
