@@ -562,8 +562,7 @@ mod test {
 
     #[test]
     fn test_matrix_transpose() {
-        let matrix = Matrix::arange(1, 7, 1).reshape((2, 3));
-        let result = matrix.transpose();
+        let result = Matrix::arange(1, 7, 1).reshape((2, 3)).transpose();
 
         assert_eq!(result.shape(), (3, 2));
         assert_eq!(result[(0, 0)], 1);

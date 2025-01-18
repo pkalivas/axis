@@ -2,6 +2,8 @@ use std::collections::VecDeque;
 
 use crate::{math::Activation, Matrix};
 
+use super::Layer;
+
 #[derive(PartialEq, Clone)]
 pub struct Dense {
     shape: (usize, usize),
@@ -33,8 +35,10 @@ impl Dense {
             bias_gradient,
         }
     }
+}
 
-    pub fn feed_forward(&mut self, input: Matrix<f32>) -> Matrix<f32> {
+impl Layer for Dense {
+    fn feed_forward(&mut self, input: Matrix<f32>) -> Matrix<f32> {
         self.inputs.push_back(input.clone());
         let output = self.predict(input);
         self.outputs.push_back(output.clone());
@@ -42,7 +46,7 @@ impl Dense {
         output
     }
 
-    pub fn backpropagate(&mut self, error: Matrix<f32>) -> Matrix<f32> {
+    fn backpropagate(&mut self, error: Matrix<f32>) -> Matrix<f32> {
         let prev_output = self.outputs.pop_back().unwrap();
         let prev_input = self.inputs.pop_back().unwrap();
 
@@ -63,7 +67,7 @@ impl Dense {
         output
     }
 
-    pub fn predict(&mut self, input: Matrix<f32>) -> Matrix<f32> {
+    fn predict(&mut self, input: Matrix<f32>) -> Matrix<f32> {
         let mut output = Matrix::new((input.shape().0, self.shape.1));
         for i in 0..input.rows() {
             for j in 0..self.shape.1 {
