@@ -1,8 +1,6 @@
-use std::collections::VecDeque;
-
-use crate::{math::Activation, Matrix};
-
 use super::Layer;
+use crate::{Matrix, math::Activation};
+use std::collections::VecDeque;
 
 #[derive(PartialEq, Clone)]
 pub struct Dense {
