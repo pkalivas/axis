@@ -1,10 +1,10 @@
 pub mod dense;
 pub mod perceptron;
 
+use crate::Matrix;
+
 pub use dense::Dense;
 pub use perceptron::MultiLayerPerceptron;
-
-use crate::Matrix;
 
 pub trait Layer {
     fn predict(&mut self, input: Matrix<f32>) -> Matrix<f32>;
