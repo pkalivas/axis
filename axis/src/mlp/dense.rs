@@ -1,5 +1,8 @@
 use super::Layer;
-use crate::{Matrix, math::Activation};
+use crate::{
+    Matrix,
+    math::{Activation, Optimizer},
+};
 use std::collections::VecDeque;
 
 #[derive(PartialEq, Clone)]
@@ -48,21 +51,21 @@ impl Layer for Dense {
         let prev_output = self.outputs.pop_back().unwrap();
         let prev_input = self.inputs.pop_back().unwrap();
 
-        let mut output = Matrix::new((prev_input.shape().0, self.shape.1));
+        let mut output_error = Matrix::new(prev_input.shape());
 
-        for i in 0..prev_input.rows() {
-            for j in 0..self.shape.1 {
-                let activation_derivative = self.activation.deactivate(prev_output[(i, j)]);
-                let delta = error[(i, j)] * activation_derivative;
+        for i in 0..self.weights.cols() {
+            let current_grad = self.activation.deactivate(prev_output[(0, i)]);
+            let delta = current_grad * error[(0, i)];
 
-                self.bias_gradient[(0, j)] += delta;
-                self.weight_gradient[(0, j)] += prev_input[(i, 0)] * delta;
+            self.bias_gradient[(0, i)] += delta;
 
-                output[(i, j)] = delta;
+            for j in 0..self.weights.rows() {
+                self.weight_gradient[(j, i)] += delta * prev_input[(0, j)];
+                output_error[(0, j)] += delta * self.weights[(j, i)];
             }
         }
 
-        output
+        output_error
     }
 
     fn predict(&mut self, input: Matrix<f32>) -> Matrix<f32> {
@@ -79,6 +82,17 @@ impl Layer for Dense {
         }
 
         output
+    }
+
+    fn update(&mut self, optimizer: &Optimizer) {
+        let mut weights = self.weights.as_mut();
+        let mut biases = self.biases.as_mut();
+
+        optimizer.update(&mut weights, &self.weight_gradient.as_ref());
+        optimizer.update(&mut biases, &self.bias_gradient.as_ref());
+
+        self.weight_gradient.fill(0.0);
+        self.bias_gradient.fill(0.0);
     }
 }
 

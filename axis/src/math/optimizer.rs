@@ -12,7 +12,7 @@ pub enum Optimizer {
 }
 
 impl Optimizer {
-    pub fn update(&self, weights: &mut Vec<f32>, gradients: &Vec<f32>) {
+    pub fn update(&self, weights: &mut [f32], gradients: &[f32]) {
         match self {
             Optimizer::SGD { learning_rate } => {
                 for (weight, gradient) in weights.iter_mut().zip(gradients.iter()) {

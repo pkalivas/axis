@@ -111,6 +111,15 @@ impl<T> Matrix<T> {
         }
     }
 
+    pub fn fill(&mut self, value: T)
+    where
+        T: Default + Clone,
+    {
+        for i in 0..self.data.len() {
+            self.data[i] = value.clone();
+        }
+    }
+
     pub fn rows(&self) -> usize {
         self.shape.0
     }
@@ -364,6 +373,18 @@ impl<T> IndexMut<(usize, usize)> for Matrix<T> {
         }
 
         &mut self.data[index.0 * self.shape.1 + index.1]
+    }
+}
+
+impl<T> AsRef<[T]> for Matrix<T> {
+    fn as_ref(&self) -> &[T] {
+        &self.data
+    }
+}
+
+impl<T> AsMut<[T]> for Matrix<T> {
+    fn as_mut(&mut self) -> &mut [T] {
+        &mut self.data
     }
 }
 
