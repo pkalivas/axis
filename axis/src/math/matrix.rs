@@ -42,13 +42,13 @@ impl<T> Matrix<T> {
         }
     }
 
-    pub fn arange(start: T, end: T, step: T) -> Self
+    pub fn arange(range: Range<T>, step: T) -> Self
     where
         T: Default + Clone + Add<Output = T> + PartialOrd + From<u8>,
     {
         let mut data = Vec::new();
-        let mut current = start.clone();
-        while current < end {
+        let mut current = range.start.clone();
+        while current < range.end {
             data.push(current.clone());
             current = current + step.clone();
         }
@@ -442,7 +442,7 @@ mod test {
 
     #[test]
     fn test_matrix_arange() {
-        let matrix = Matrix::arange(0, 5, 1);
+        let matrix = Matrix::arange(0..5, 1);
 
         assert_eq!(matrix.shape(), (1, 5));
         assert_eq!(matrix[(0, 0)], 0);
@@ -454,8 +454,8 @@ mod test {
 
     #[test]
     fn test_matrix_add_matrix() {
-        let matrix1 = Matrix::arange(0, 4, 1).reshape((2, 2));
-        let matrix2 = Matrix::arange(4, 8, 1).reshape((2, 2));
+        let matrix1 = Matrix::arange(0..4, 1).reshape((2, 2));
+        let matrix2 = Matrix::arange(4..8, 1).reshape((2, 2));
 
         let result = matrix1 + matrix2;
 
@@ -467,7 +467,7 @@ mod test {
 
     #[test]
     fn test_matrix_add_scaler() {
-        let result = Matrix::arange(0, 4, 1).reshape((2, 2)) + 1;
+        let result = Matrix::arange(0..4, 1).reshape((2, 2)) + 1;
 
         assert_eq!(result[(0, 0)], 1);
         assert_eq!(result[(0, 1)], 2);
@@ -477,8 +477,8 @@ mod test {
 
     #[test]
     fn test_matrix_mul_matrix() {
-        let matrix1 = Matrix::arange(1, 5, 1).reshape((2, 2));
-        let matrix2 = Matrix::arange(5, 9, 1).reshape((2, 2));
+        let matrix1 = Matrix::arange(1..5, 1).reshape((2, 2));
+        let matrix2 = Matrix::arange(5..9, 1).reshape((2, 2));
 
         let result = matrix1 * matrix2;
 
@@ -490,7 +490,7 @@ mod test {
 
     #[test]
     fn test_matrix_mul_scaler() {
-        let result = Matrix::arange(1, 5, 1).reshape((2, 2)) * 2;
+        let result = Matrix::arange(1..5, 1).reshape((2, 2)) * 2;
 
         assert_eq!(result[(0, 0)], 2);
         assert_eq!(result[(0, 1)], 4);
@@ -500,8 +500,8 @@ mod test {
 
     #[test]
     fn test_matrix_div_matrix() {
-        let matrix1 = Matrix::arange(1, 5, 1).reshape((2, 2));
-        let matrix2 = Matrix::arange(1, 5, 1).reshape((2, 2));
+        let matrix1 = Matrix::arange(1..5, 1).reshape((2, 2));
+        let matrix2 = Matrix::arange(1..5, 1).reshape((2, 2));
 
         let result = matrix1 / matrix2;
 
@@ -513,7 +513,7 @@ mod test {
 
     #[test]
     fn test_matrix_div_scaler() {
-        let result = Matrix::arange(2, 10, 2).reshape((2, 2)) / 2;
+        let result = Matrix::arange(2..10, 2).reshape((2, 2)) / 2;
 
         assert_eq!(result[(0, 0)], 1);
         assert_eq!(result[(0, 1)], 2);
@@ -523,8 +523,8 @@ mod test {
 
     #[test]
     fn test_matrix_sub_matrix() {
-        let matrix1 = Matrix::arange(1, 5, 1).reshape((2, 2));
-        let matrix2 = Matrix::arange(5, 9, 1).reshape((2, 2));
+        let matrix1 = Matrix::arange(1..5, 1).reshape((2, 2));
+        let matrix2 = Matrix::arange(5..9, 1).reshape((2, 2));
 
         let result = matrix1 - matrix2;
 
@@ -536,7 +536,7 @@ mod test {
 
     #[test]
     fn test_matrix_sub_scaler() {
-        let result = Matrix::arange(1, 5, 1).reshape((2, 2)) - 1;
+        let result = Matrix::arange(1..5, 1).reshape((2, 2)) - 1;
 
         assert_eq!(result[(0, 0)], 0);
         assert_eq!(result[(0, 1)], 1);
@@ -546,8 +546,8 @@ mod test {
 
     #[test]
     fn test_matrix_dot() {
-        let matrix1 = Matrix::arange(1, 5, 1).reshape((2, 2));
-        let matrix2 = Matrix::arange(5, 9, 1).reshape((2, 2));
+        let matrix1 = Matrix::arange(1..5, 1).reshape((2, 2));
+        let matrix2 = Matrix::arange(5..9, 1).reshape((2, 2));
 
         let result = matrix1.dot(&matrix2);
 
@@ -559,7 +559,7 @@ mod test {
 
     #[test]
     fn test_matrix_transpose() {
-        let result = Matrix::arange(1, 7, 1).reshape((2, 3)).transpose();
+        let result = Matrix::arange(1..7, 1).reshape((2, 3)).transpose();
 
         assert_eq!(result.shape(), (3, 2));
         assert_eq!(result[(0, 0)], 1);
