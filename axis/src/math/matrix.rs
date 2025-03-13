@@ -1,12 +1,9 @@
+use crate::domain::random_provider;
+use rand::distr::StandardUniform;
+use rand::distr::uniform::SampleUniform;
+use rand::prelude::Distribution;
 use std::fmt::Debug;
 use std::ops::{Add, Div, Index, IndexMut, Mul, Range, Sub};
-
-use rand::{
-    distributions::{uniform::SampleUniform, Standard},
-    prelude::Distribution,
-};
-
-use crate::domain::random_provider;
 
 #[derive(Clone, PartialEq)]
 pub struct Matrix<T> {
@@ -63,10 +60,10 @@ impl<T> Matrix<T> {
     pub fn random(shape: (usize, usize), range: Range<T>) -> Self
     where
         T: SampleUniform + Clone + PartialOrd,
-        Standard: Distribution<T>,
+        StandardUniform: Distribution<T>,
     {
         let data = (0..shape.0 * shape.1)
-            .map(|_| random_provider::gen_range(range.clone()))
+            .map(|_| random_provider::random_range(range.clone()))
             .collect::<Vec<T>>();
 
         Matrix { data, shape }
