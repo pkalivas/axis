@@ -1,13 +1,13 @@
 use super::Layer;
-use crate::{Matrix, math::Activation};
-use std::collections::VecDeque;
+use crate::{
+    Matrix,
+    math::{Activation, Optimizer},
+};
 
 #[derive(PartialEq, Clone)]
 pub struct Dense {
     shape: (usize, usize),
     activation: Activation,
-    inputs: VecDeque<Matrix<f32>>,
-    outputs: VecDeque<Matrix<f32>>,
     weights: Matrix<f32>,
     biases: Matrix<f32>,
     weight_gradient: Matrix<f32>,
@@ -16,69 +16,61 @@ pub struct Dense {
 
 impl Dense {
     pub fn new(shape: (usize, usize), activation: Activation) -> Self {
-        let weights = Matrix::random(shape, -1.0..1.0);
-        let biases = Matrix::random((1, shape.1), -1.0..1.0);
-
-        let weight_gradient = Matrix::new(shape);
-        let bias_gradient = Matrix::new((1, shape.1));
+        let weight_shape = (shape.1, shape.0);
+        let bias_shape = (1, shape.1);
 
         Dense {
             shape,
             activation,
-            inputs: VecDeque::new(),
-            outputs: VecDeque::new(),
-            weights,
-            biases,
-            weight_gradient,
-            bias_gradient,
+            weights: Matrix::random(weight_shape, -1.0..1.0),
+            biases: Matrix::random(bias_shape, -1.0..1.0),
+            weight_gradient: Matrix::new(weight_shape),
+            bias_gradient: Matrix::new(bias_shape),
         }
     }
 }
 
 impl Layer for Dense {
-    fn feed_forward(&mut self, input: Matrix<f32>) -> Matrix<f32> {
-        self.inputs.push_back(input.clone());
-        let output = self.predict(input);
-        self.outputs.push_back(output.clone());
-
-        output
-    }
-
-    fn backpropagate(&mut self, error: Matrix<f32>) -> Matrix<f32> {
-        let prev_output = self.outputs.pop_back().unwrap();
-        let prev_input = self.inputs.pop_back().unwrap();
-
-        let mut output = Matrix::new((prev_input.shape().0, self.shape.1));
-
-        for i in 0..prev_input.rows() {
-            for j in 0..self.shape.1 {
-                let activation_derivative = self.activation.deactivate(prev_output[(i, j)]);
-                let delta = error[(i, j)] * activation_derivative;
-
-                self.bias_gradient[(0, j)] += delta;
-                self.weight_gradient[(0, j)] += prev_input[(i, 0)] * delta;
-
-                output[(i, j)] = delta;
+    fn feed_forward(&mut self, input: &Matrix<f32>) -> Matrix<f32> {
+        let mut output = Matrix::new((1, self.shape.1));
+        for i in 0..self.shape.1 {
+            let mut sum = self.biases[(0, i)];
+            for j in 0..self.shape.0 {
+                sum += input[(0, j)] * self.weights[(i, j)];
             }
+
+            output[(0, i)] = self.activation.activate(sum);
         }
 
         output
     }
 
-    fn predict(&mut self, input: Matrix<f32>) -> Matrix<f32> {
-        let mut output = Matrix::new((input.shape().0, self.shape.1));
-        for i in 0..input.rows() {
-            for j in 0..self.shape.1 {
-                let mut sum = self.biases[(0, j)];
-                for k in 0..input.cols() {
-                    sum += input[(i, k)] * self.weights[(k, j)];
-                }
+    fn backpropagate(
+        &mut self,
+        error: &Matrix<f32>,
+        prev_input: &Matrix<f32>,
+        prev_output: &Matrix<f32>,
+    ) -> Matrix<f32> {
+        let mut output_error = Matrix::new(prev_input.shape());
 
-                output[(i, j)] = self.activation.activate(sum);
+        for i in 0..self.shape.1 {
+            let current_gradient = self.activation.deactivate(prev_output[(0, i)]);
+            let delta = current_gradient * error[(0, i)];
+
+            self.bias_gradient[(0, i)] += delta;
+
+            for j in 0..self.shape.0 {
+                self.weight_gradient[(i, j)] += delta * prev_input[(0, j)];
+                output_error[(0, j)] += self.weights[(i, j)] * error[(0, i)];
             }
         }
 
-        output
+        output_error
+    }
+
+    fn update(&mut self, optimizer: &Optimizer) {
+        optimizer.update(&mut self.weights, &mut self.weight_gradient);
+        optimizer.update(&mut self.biases, &mut self.bias_gradient);
     }
 }
 
@@ -94,7 +86,7 @@ mod test {
 
         let mut dense = Dense::new((2, 2), Activation::ReLU);
         let input = Matrix::from(vec![vec![1.0, 2.0]]);
-        let output = dense.feed_forward(input);
+        let output = dense.feed_forward(&input);
 
         assert_eq!(output.shape(), (1, 2));
     }
