@@ -36,15 +36,15 @@ impl Dense {
 }
 
 impl Layer for Dense {
-    fn feed_forward(&mut self, input: Matrix<f32>) -> Matrix<f32> {
+    fn feed_forward(&mut self, input: &Matrix<f32>) -> Matrix<f32> {
         self.inputs.push_back(input.clone());
-        let output = self.predict(input);
+        let output = self.predict(&input);
         self.outputs.push_back(output.clone());
 
         output
     }
 
-    fn backpropagate(&mut self, error: Matrix<f32>) -> Matrix<f32> {
+    fn backpropagate(&mut self, error: &Matrix<f32>) -> Matrix<f32> {
         let prev_output = self.outputs.pop_back().unwrap();
         let prev_input = self.inputs.pop_back().unwrap();
 
@@ -65,7 +65,7 @@ impl Layer for Dense {
         output_error
     }
 
-    fn predict(&mut self, input: Matrix<f32>) -> Matrix<f32> {
+    fn predict(&mut self, input: &Matrix<f32>) -> Matrix<f32> {
         let mut output = Matrix::new((1, self.shape.1));
         for i in 0..self.shape.1 {
             let mut sum = self.biases[(0, i)];
@@ -99,7 +99,7 @@ mod test {
 
         let mut dense = Dense::new((2, 2), Activation::ReLU);
         let input = Matrix::from(vec![vec![1.0, 2.0]]);
-        let output = dense.feed_forward(input);
+        let output = dense.feed_forward(&input);
 
         assert_eq!(output.shape(), (1, 2));
     }
@@ -110,9 +110,9 @@ mod test {
 
         let mut dense = Dense::new((2, 2), Activation::ReLU);
         let input = Matrix::from(vec![vec![1.0, 2.0]]);
-        let _ = dense.feed_forward(input);
+        let _ = dense.feed_forward(&input);
         let error = Matrix::from(vec![vec![0.5, 0.5]]);
-        let output_error = dense.backpropagate(error);
+        let output_error = dense.backpropagate(&error);
 
         assert_eq!(output_error.shape(), (1, 2));
     }
