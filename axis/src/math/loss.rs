@@ -14,7 +14,7 @@ impl Loss {
             Loss::MSE => y_true
                 .iter()
                 .zip(y_pred.iter())
-                .map(|(y_t, y_p)| (y_t - y_p).powi(2))
+                .map(|(y_t, y_p)| 2.0 * (y_p - y_t)) // d/dy (y - t)^2 = 2(y - t)
                 .collect(),
             Loss::CrossEntropy => y_true
                 .iter()

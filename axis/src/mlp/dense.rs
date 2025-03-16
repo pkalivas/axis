@@ -19,21 +19,18 @@ pub struct Dense {
 
 impl Dense {
     pub fn new(shape: (usize, usize), activation: Activation) -> Self {
-        let weights = Matrix::random(shape, -1.0..1.0);
-        let biases = Matrix::random((1, shape.1), -1.0..1.0);
-
-        let weight_gradient = Matrix::new(shape);
-        let bias_gradient = Matrix::new((1, shape.1));
+        let weight_shape = (shape.1, shape.0);
+        let bias_shape = (1, shape.1);
 
         Dense {
             shape,
             activation,
             inputs: VecDeque::new(),
             outputs: VecDeque::new(),
-            weights,
-            biases,
-            weight_gradient,
-            bias_gradient,
+            weights: Matrix::random(weight_shape, -1.0..1.0),
+            biases: Matrix::random(bias_shape, -1.0..1.0),
+            weight_gradient: Matrix::new(weight_shape),
+            bias_gradient: Matrix::new(bias_shape),
         }
     }
 }
@@ -53,15 +50,15 @@ impl Layer for Dense {
 
         let mut output_error = Matrix::new(prev_input.shape());
 
-        for i in 0..self.weights.cols() {
-            let current_grad = self.activation.deactivate(prev_output[(0, i)]);
-            let delta = current_grad * error[(0, i)];
+        for i in 0..self.shape.1 {
+            let current_gradient = self.activation.deactivate(prev_output[(0, i)]);
+            let delta = current_gradient * error[(0, i)];
 
             self.bias_gradient[(0, i)] += delta;
 
-            for j in 0..self.weights.rows() {
-                self.weight_gradient[(j, i)] += delta * prev_input[(0, j)];
-                output_error[(0, j)] += delta * self.weights[(j, i)];
+            for j in 0..self.shape.0 {
+                self.weight_gradient[(i, j)] += delta * prev_input[(0, j)];
+                output_error[(0, j)] += self.weights[(i, j)] * error[(0, i)];
             }
         }
 
@@ -69,28 +66,22 @@ impl Layer for Dense {
     }
 
     fn predict(&mut self, input: Matrix<f32>) -> Matrix<f32> {
-        let mut output = Matrix::new((input.shape().0, self.shape.1));
-        for i in 0..input.rows() {
-            for j in 0..self.shape.1 {
-                let mut sum = self.biases[(0, j)];
-                for k in 0..input.cols() {
-                    sum += input[(i, k)] * self.weights[(k, j)];
-                }
-
-                output[(i, j)] = self.activation.activate(sum);
+        let mut output = Matrix::new((1, self.shape.1));
+        for i in 0..self.shape.1 {
+            let mut sum = self.biases[(0, i)];
+            for j in 0..self.shape.0 {
+                sum += input[(0, j)] * self.weights[(i, j)];
             }
+
+            output[(0, i)] = self.activation.activate(sum);
         }
 
         output
     }
 
     fn update(&mut self, optimizer: &Optimizer) {
-        let mut weights = self.weights.as_mut();
-        let mut biases = self.biases.as_mut();
-
-        optimizer.update(&mut weights, &self.weight_gradient.as_ref());
-        optimizer.update(&mut biases, &self.bias_gradient.as_ref());
-
+        optimizer.update(&mut self.weights, &self.weight_gradient);
+        optimizer.update(&mut self.biases, &self.bias_gradient);
         self.weight_gradient.fill(0.0);
         self.bias_gradient.fill(0.0);
     }
@@ -111,5 +102,18 @@ mod test {
         let output = dense.feed_forward(input);
 
         assert_eq!(output.shape(), (1, 2));
+    }
+
+    #[test]
+    fn test_dense_backpropagation() {
+        random_provider::set_seed(42);
+
+        let mut dense = Dense::new((2, 2), Activation::ReLU);
+        let input = Matrix::from(vec![vec![1.0, 2.0]]);
+        let _ = dense.feed_forward(input);
+        let error = Matrix::from(vec![vec![0.5, 0.5]]);
+        let output_error = dense.backpropagate(error);
+
+        assert_eq!(output_error.shape(), (1, 2));
     }
 }

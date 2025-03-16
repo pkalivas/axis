@@ -1,10 +1,12 @@
 use axis::{
     Matrix,
+    domain::random_provider,
     math::{Activation, Loss, Optimizer},
     mlp::{Dense, Layer},
 };
 
 fn main() {
+    random_provider::set_seed(402);
     let xor = xor()
         .into_iter()
         .map(|vals| {
@@ -13,14 +15,14 @@ fn main() {
         })
         .collect::<Vec<(Matrix<f32>, Matrix<f32>)>>();
 
-    let mut layer_one = Dense::new((2, 16), Activation::ReLU);
-    let mut layer_two = Dense::new((16, 32), Activation::Sigmoid);
-    let mut layer_three = Dense::new((32, 16), Activation::ReLU);
+    let mut layer_one = Dense::new((2, 16), Activation::Sigmoid);
+    let mut layer_two = Dense::new((16, 16), Activation::Sigmoid);
+    let mut layer_three = Dense::new((16, 16), Activation::Sigmoid);
     let mut layer_four = Dense::new((16, 1), Activation::Sigmoid);
 
     let loss = Loss::MSE;
     let optimizer = Optimizer::SGD {
-        learning_rate: 0.001,
+        learning_rate: 0.01,
     };
 
     for _ in 0..1500 {
@@ -39,12 +41,12 @@ fn main() {
             let layer_three_error = layer_three.backpropagate(layer_four_error.clone());
             let layer_two_error = layer_two.backpropagate(layer_three_error.clone());
             let _ = layer_one.backpropagate(layer_two_error.clone());
-        }
 
-        layer_four.update(&optimizer);
-        layer_three.update(&optimizer);
-        layer_two.update(&optimizer);
-        layer_one.update(&optimizer);
+            layer_four.update(&optimizer);
+            layer_three.update(&optimizer);
+            layer_two.update(&optimizer);
+            layer_one.update(&optimizer);
+        }
     }
 
     for (input, output) in xor.iter() {
