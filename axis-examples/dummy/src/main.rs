@@ -6,7 +6,7 @@ use axis::{
 };
 
 fn main() {
-    random_provider::set_seed(402);
+    random_provider::set_seed(4992);
     let xor = xor()
         .into_iter()
         .map(|vals| {
@@ -26,8 +26,7 @@ fn main() {
 
     let mut mlp = MultiLayerPerceptron::new()
         .layer(Dense::new((2, 16), Activation::Sigmoid))
-        .layer(Dense::new((16, 16), Activation::Sigmoid))
-        .layer(Dense::new((16, 16), Activation::Sigmoid))
+        .layer(Dense::new((16, 16), Activation::ReLU))
         .layer(Dense::new((16, 1), Activation::Sigmoid));
 
     let loss = Loss::MSE;
@@ -35,7 +34,7 @@ fn main() {
 
     let start_time = std::time::Instant::now();
     for _ in 0..1500 {
-        mlp.train(&features, &targets, &optimizer);
+        mlp.fit(&features, &targets, &optimizer);
     }
 
     let elapsed_time = start_time.elapsed();

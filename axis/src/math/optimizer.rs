@@ -11,12 +11,13 @@ pub enum Optimizer {
 }
 
 impl Optimizer {
-    pub fn update(&self, weights: &mut Matrix<f32>, gradients: &Matrix<f32>) {
+    pub fn update(&self, weights: &mut Matrix<f32>, gradients: &mut Matrix<f32>) {
         match self {
             Optimizer::SGD(learning_rate) => {
                 for i in 0..weights.rows() {
                     for j in 0..weights.cols() {
                         weights[(i, j)] -= learning_rate * gradients[(i, j)];
+                        gradients[(i, j)] = 0.0;
                     }
                 }
             }

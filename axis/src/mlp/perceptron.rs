@@ -23,16 +23,12 @@ impl MultiLayerPerceptron {
     }
 
     pub fn predict(&mut self, input: Matrix<f32>) -> Matrix<f32> {
-        let mut output = input;
-
-        for layer in self.layers.iter_mut() {
-            output = layer.predict(&output);
-        }
-
-        output
+        self.layers
+            .iter_mut()
+            .fold(input, |acc, layer| layer.feed_forward(&acc))
     }
 
-    pub fn train(&mut self, input: &[Matrix<f32>], target: &[Matrix<f32>], optimizer: &Optimizer) {
+    pub fn fit(&mut self, input: &[Matrix<f32>], target: &[Matrix<f32>], optimizer: &Optimizer) {
         for (input, target) in input.iter().zip(target.iter()) {
             let mut current_output = input;
 
@@ -45,10 +41,23 @@ impl MultiLayerPerceptron {
 
             let mut error = Matrix::from(self.loss.apply(target.as_ref(), current_output.as_ref()));
 
-            for layer in self.layers.iter_mut().rev() {
-                error = layer.backpropagate(&error);
-                layer.update(&optimizer);
+            let layer_count = self.layers.len();
+            for (idx, layer) in self.layers.iter_mut().rev().enumerate() {
+                let prev_output = &layer_outputs[layer_count - idx - 1];
+                let prev_input = if idx == 0 {
+                    &layer_outputs[idx + 1]
+                } else if idx == layer_count - 1 {
+                    &input
+                } else {
+                    &layer_outputs[idx]
+                };
+
+                error = layer.backpropagate(&error, prev_input, prev_output);
             }
+        }
+
+        for layer in self.layers.iter_mut() {
+            layer.update(optimizer);
         }
     }
 }
