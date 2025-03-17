@@ -39,7 +39,7 @@ impl MultiLayerPerceptron {
                 current_output = layer_outputs.last().unwrap();
             }
 
-            let mut error = Matrix::from(self.loss.apply(target.as_ref(), current_output.as_ref()));
+            let mut error = Matrix::from(self.loss.apply(target, current_output));
 
             let layer_count = self.layers.len();
             for (idx, layer) in self.layers.iter_mut().rev().enumerate() {

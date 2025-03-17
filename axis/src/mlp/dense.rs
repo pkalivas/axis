@@ -54,8 +54,7 @@ impl Layer for Dense {
         let mut output_error = Matrix::new(prev_input.shape());
 
         for i in 0..self.shape.1 {
-            let current_gradient = self.activation.deactivate(prev_output[(0, i)]);
-            let delta = current_gradient * error[(0, i)];
+            let delta = self.activation.deactivate(prev_output[(0, i)]) * error[(0, i)];
 
             self.bias_gradient[(0, i)] += delta;
 
@@ -76,9 +75,8 @@ impl Layer for Dense {
 
 #[cfg(test)]
 mod test {
-    use crate::domain::random_provider;
-
     use super::*;
+    use crate::domain::random_provider;
 
     #[test]
     fn test_dense() {
