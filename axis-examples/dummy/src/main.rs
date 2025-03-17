@@ -30,13 +30,12 @@ fn main() {
         .layer(Dense::new((16, 1), Activation::Sigmoid));
 
     let loss = Loss::MSE;
-    let optimizer = Optimizer::SGD(0.01);
+    let optimizer = Optimizer::SGD(0.03);
 
     let start_time = std::time::Instant::now();
-    for _ in 0..1500 {
+    for _ in 0..500 {
         mlp.fit(&features, &targets, &optimizer);
     }
-
     let elapsed_time = start_time.elapsed();
     println!("Time taken: {:?}", elapsed_time);
 
@@ -45,10 +44,7 @@ fn main() {
 
         println!("Output: {:?}", prediction);
         println!("Expected: {:?}", output);
-        println!(
-            "Loss: {:?}",
-            loss.apply(output.as_ref(), prediction.as_ref())
-        );
+        println!("Loss: {:?}", loss.apply(output, &prediction));
         println!("----------------------------------");
         println!();
     }
