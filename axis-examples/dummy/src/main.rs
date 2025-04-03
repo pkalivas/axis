@@ -40,7 +40,7 @@ fn main() {
     println!("Time taken: {:?}", elapsed_time);
 
     for (input, output) in xor.iter() {
-        let prediction = mlp.predict(input.clone());
+        let prediction = mlp.predict(input);
 
         println!("Output: {:?}", prediction);
         println!("Expected: {:?}", output);

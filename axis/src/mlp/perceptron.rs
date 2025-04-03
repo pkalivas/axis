@@ -22,10 +22,16 @@ impl MultiLayerPerceptron {
         self
     }
 
-    pub fn predict(&mut self, input: Matrix<f32>) -> Matrix<f32> {
-        self.layers
-            .iter_mut()
-            .fold(input, |acc, layer| layer.feed_forward(&acc))
+    pub fn predict(&mut self, input: &Matrix<f32>) -> Matrix<f32> {
+        let mut layer_outputs = Vec::new();
+        let mut current_output = input;
+        for layer in self.layers.iter_mut() {
+            let output = layer.feed_forward(current_output);
+            layer_outputs.push(output);
+            current_output = layer_outputs.last().unwrap();
+        }
+
+        current_output.clone()
     }
 
     pub fn fit(&mut self, input: &[Matrix<f32>], target: &[Matrix<f32>], optimizer: &Optimizer) {
