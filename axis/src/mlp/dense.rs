@@ -4,7 +4,7 @@ use crate::{
     math::{Activation, Optimizer},
 };
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct Dense {
     shape: (usize, usize),
     activation: Activation,
