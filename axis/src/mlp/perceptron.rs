@@ -6,15 +6,11 @@ use crate::{
 
 pub struct MultiLayerPerceptron {
     layers: Vec<Box<dyn Layer>>,
-    loss: Loss,
 }
 
 impl MultiLayerPerceptron {
     pub fn new() -> Self {
-        MultiLayerPerceptron {
-            layers: Vec::new(),
-            loss: Loss::MSE,
-        }
+        MultiLayerPerceptron { layers: Vec::new() }
     }
 
     pub fn layer<L: Layer + 'static>(mut self, layer: L) -> Self {
@@ -22,13 +18,25 @@ impl MultiLayerPerceptron {
         self
     }
 
-    pub fn predict(&mut self, input: Matrix<f32>) -> Matrix<f32> {
-        self.layers
-            .iter_mut()
-            .fold(input, |acc, layer| layer.feed_forward(&acc))
+    pub fn predict(&mut self, input: &Matrix<f32>) -> Matrix<f32> {
+        let mut layer_outputs = Vec::new();
+        let mut current_output = input;
+        for layer in self.layers.iter_mut() {
+            let output = layer.feed_forward(current_output);
+            layer_outputs.push(output);
+            current_output = layer_outputs.last().unwrap();
+        }
+
+        current_output.clone()
     }
 
-    pub fn fit(&mut self, input: &[Matrix<f32>], target: &[Matrix<f32>], optimizer: &Optimizer) {
+    pub fn fit(
+        &mut self,
+        input: &[Matrix<f32>],
+        target: &[Matrix<f32>],
+        optimizer: &Optimizer,
+        loss: &Loss,
+    ) {
         for (input, target) in input.iter().zip(target.iter()) {
             let mut current_output = input;
 
@@ -39,7 +47,7 @@ impl MultiLayerPerceptron {
                 current_output = layer_outputs.last().unwrap();
             }
 
-            let mut error = Matrix::from(self.loss.apply(target, current_output));
+            let mut error = Matrix::from(loss.apply(target, current_output));
 
             let layer_count = self.layers.len();
             for (idx, layer) in self.layers.iter_mut().rev().enumerate() {
@@ -47,7 +55,7 @@ impl MultiLayerPerceptron {
                 let prev_input = if idx == 0 {
                     &layer_outputs[idx + 1]
                 } else if idx == layer_count - 1 {
-                    &input
+                    input
                 } else {
                     &layer_outputs[idx]
                 };

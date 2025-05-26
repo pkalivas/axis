@@ -34,13 +34,13 @@ fn main() {
 
     let start_time = std::time::Instant::now();
     for _ in 0..500 {
-        mlp.fit(&features, &targets, &optimizer);
+        mlp.fit(&features, &targets, &optimizer, &loss);
     }
     let elapsed_time = start_time.elapsed();
     println!("Time taken: {:?}", elapsed_time);
 
     for (input, output) in xor.iter() {
-        let prediction = mlp.predict(input.clone());
+        let prediction = mlp.predict(input);
 
         println!("Output: {:?}", prediction);
         println!("Expected: {:?}", output);
