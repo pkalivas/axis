@@ -24,15 +24,15 @@ impl Dense {
             activation,
             weights: Matrix::random(weight_shape, -1.0..1.0),
             biases: Matrix::random(bias_shape, -1.0..1.0),
-            weight_gradient: Matrix::new(weight_shape),
-            bias_gradient: Matrix::new(bias_shape),
+            weight_gradient: Matrix::new(weight_shape.0, weight_shape.1),
+            bias_gradient: Matrix::new(bias_shape.0, bias_shape.1),
         }
     }
 }
 
 impl Layer for Dense {
     fn feed_forward(&mut self, input: &Matrix<f32>) -> Matrix<f32> {
-        let mut output = Matrix::new((1, self.shape.1));
+        let mut output = Matrix::new(1, self.shape.1);
         for i in 0..self.shape.1 {
             let mut sum = self.biases[(0, i)];
             for j in 0..self.shape.0 {
@@ -51,7 +51,7 @@ impl Layer for Dense {
         prev_input: &Matrix<f32>,
         prev_output: &Matrix<f32>,
     ) -> Matrix<f32> {
-        let mut output_error = Matrix::new(prev_input.shape());
+        let mut output_error = Matrix::new(prev_input.shape().0, prev_input.shape().1);
 
         for i in 0..self.shape.1 {
             let delta = self.activation.deactivate(prev_output[(0, i)]) * error[(0, i)];
@@ -80,7 +80,7 @@ mod test {
 
     #[test]
     fn test_dense() {
-        random_provider::set_seed(42);
+        random_provider::seed(42);
 
         let mut dense = Dense::new((2, 2), Activation::ReLU);
         let input = Matrix::from(vec![vec![1.0, 2.0]]);

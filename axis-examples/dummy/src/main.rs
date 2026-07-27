@@ -6,7 +6,7 @@ use axis::{
 };
 
 fn main() {
-    random_provider::set_seed(4992);
+    random_provider::seed(4992);
     let xor = xor()
         .into_iter()
         .map(|vals| {

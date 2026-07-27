@@ -12,13 +12,13 @@ pub struct Matrix<T> {
 }
 
 impl<T> Matrix<T> {
-    pub fn new(shape: (usize, usize)) -> Self
+    pub fn new(rows: usize, cols: usize) -> Self
     where
         T: Default + Clone,
     {
         Matrix {
-            data: vec![Default::default(); shape.0 * shape.1],
-            shape,
+            data: vec![Default::default(); rows * cols],
+            shape: (rows, cols),
         }
     }
 
@@ -63,7 +63,7 @@ impl<T> Matrix<T> {
         StandardUniform: Distribution<T>,
     {
         let data = (0..shape.0 * shape.1)
-            .map(|_| random_provider::random_range(range.clone()))
+            .map(|_| random_provider::range(range.clone()))
             .collect::<Vec<T>>();
 
         Matrix { data, shape }
@@ -158,7 +158,7 @@ where
             panic!("Matrix dimensions do not match");
         }
 
-        let mut result = Matrix::new((self.shape.0, other.shape.1));
+        let mut result = Matrix::new(self.shape.0, other.shape.1);
         for i in 0..self.shape.0 {
             for j in 0..other.shape.1 {
                 let mut sum = T::default();
@@ -442,7 +442,7 @@ mod test {
 
     #[test]
     fn test_matrix() {
-        let mut matrix = Matrix::new((2, 2));
+        let mut matrix = Matrix::new(2, 2);
 
         matrix[(0, 0)] = 1;
         matrix[(0, 1)] = 2;
@@ -457,7 +457,7 @@ mod test {
 
     #[test]
     fn test_matrix_shape() {
-        let matrix = Matrix::<f32>::new((2, 2));
+        let matrix = Matrix::<f32>::new(2, 2);
         assert_eq!(matrix.shape(), (2, 2));
     }
 
