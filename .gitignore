@@ -4,3 +4,4 @@ target/
 Cargo.lock
 axis/.vs
 .idea/
+.DS_Store
