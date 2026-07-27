@@ -15,7 +15,7 @@ impl Loss {
                 .as_ref()
                 .iter()
                 .zip(y_pred.as_ref().iter())
-                .map(|(y_t, y_p)| 2.0 * (y_p - y_t)) // d/dy (y - t)^2 = 2(y - t)
+                .map(|(y_t, y_p)| 2.0 * (y_p - y_t))
                 .collect(),
             Loss::CrossEntropy => y_true
                 .as_ref()

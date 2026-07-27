@@ -1,6 +1,5 @@
-use std::ops::{Index, IndexMut};
-
 use super::{DataType, Scaler};
+use std::ops::{Index, IndexMut};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Series {
@@ -48,11 +47,11 @@ impl Series {
         self.values.len()
     }
 
-    pub fn iter(&self) -> std::slice::Iter<Scaler> {
+    pub fn iter(&self) -> std::slice::Iter<'_, Scaler> {
         self.values.iter()
     }
 
-    pub fn iter_mut(&mut self) -> std::slice::IterMut<Scaler> {
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, Scaler> {
         self.values.iter_mut()
     }
 }

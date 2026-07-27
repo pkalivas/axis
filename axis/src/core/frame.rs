@@ -1,11 +1,9 @@
+use super::FrameIterator;
+use crate::core::series::Series;
 use std::{
     collections::BTreeMap,
     ops::{Index, IndexMut},
 };
-
-use crate::core::series::Series;
-
-use super::FrameIterator;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct DataFrame {
