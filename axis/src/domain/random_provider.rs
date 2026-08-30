@@ -17,10 +17,10 @@ thread_local! {
     });
 }
 
-pub fn with_rng<R>(f: impl FnOnce(&mut RdRand<'_>) -> R) -> R {
+pub fn with_rng<R>(f: impl FnOnce(&mut AxRand<'_>) -> R) -> R {
     TLS_RNG.with(|cell| {
         let mut rng = cell.borrow_mut();
-        f(&mut RdRand::new(&mut rng))
+        f(&mut AxRand::new(&mut rng))
     })
 }
 
@@ -110,11 +110,11 @@ pub fn cond_indices(range: Range<usize>, prob: f32) -> Vec<usize> {
     with_rng(|rng| rng.cond_indices(range, prob))
 }
 
-pub struct RdRand<'a>(&'a mut SmallRng);
+pub struct AxRand<'a>(&'a mut SmallRng);
 
-impl<'a> RdRand<'a> {
+impl<'a> AxRand<'a> {
     pub fn new(rng: &'a mut SmallRng) -> Self {
-        RdRand(rng)
+        AxRand(rng)
     }
 
     #[inline]
