@@ -1,6 +1,5 @@
-use std::ops::{Index, IndexMut};
-
 use super::Shape;
+use std::ops::{Index, IndexMut};
 
 pub struct Tensor<T> {
     pub data: Vec<T>,
